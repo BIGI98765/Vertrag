@@ -2,26 +2,35 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
   <title>Kaufvertrag Generator</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap');
 
-    body {
+    /* Box sizing */
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      width: 100%;
       background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-      color: #e0e0e0;
       font-family: 'Montserrat', sans-serif;
-      padding: 30px 15px;
+      color: #e0e0e0;
       display: flex;
       justify-content: center;
-      min-height: 100vh;
-      margin: 0;
+      align-items: center;
+      padding: 20px;
+      overflow-x: hidden;
     }
 
     .form-container {
       background: #121212cc;
-      padding: 30px 40px;
+      padding: 30px 25px;
       border-radius: 16px;
       box-shadow:
         0 0 10px #ff00ffaa,
@@ -29,6 +38,7 @@
         0 0 30px #ff00ffaa;
       max-width: 480px;
       width: 100%;
+      min-width: 320px;
       transition: transform 0.3s ease;
     }
 
@@ -43,7 +53,6 @@
     .header {
       text-align: center;
       margin-bottom: 30px;
-      position: relative;
     }
 
     .header img {
@@ -66,9 +75,9 @@
     }
 
     @keyframes rainbow-text {
-      0%{background-position:0% 50%;}
-      50%{background-position:100% 50%;}
-      100%{background-position:0% 50%;}
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
     }
 
     label {
@@ -88,16 +97,20 @@
     input[type="date"],
     textarea {
       width: 100%;
-      padding: 12px 14px;
-      border-radius: 10px;
+      padding: 8px 12px;
+      font-size: 1rem;
+      border-radius: 8px;
       border: 2px solid transparent;
       background: #222;
       color: #eee;
-      font-size: 1rem;
-      resize: vertical;
-      box-shadow:
-        inset 0 0 6px #550055aa;
+      box-shadow: inset 0 0 6px #550055aa;
       transition: border 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
+      resize: vertical;
+    }
+
+    textarea {
+      min-height: 40px;
+      max-height: 90px;
     }
 
     input[type="text"]:focus,
@@ -112,11 +125,6 @@
       box-shadow:
         0 0 10px #ff00ffcc,
         0 0 20px #00ffffcc;
-    }
-
-    textarea {
-      min-height: 80px;
-      font-family: 'Montserrat', sans-serif;
     }
 
     button {
@@ -170,7 +178,7 @@
   </style>
 </head>
 <body>
-  <div class="form-container">
+  <div class="form-container" tabindex="0">
     <div class="header">
       <img src="icon.png" alt="PC Icon" />
       <h1>Kaufvertrag erstellen</h1>
@@ -201,7 +209,72 @@
   </div>
 
   <script>
-    // Dein generatePDF bleibt gleich, kein Grund für Änderung
+    async function generatePDF() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+
+      const icon = new Image();
+      icon.src = 'icon.png';
+      await new Promise(resolve => {
+        icon.onload = resolve;
+        icon.onerror = resolve;
+      });
+
+      if (icon.complete) {
+        doc.addImage(icon, 'PNG', 80, 10, 50, 50);
+      }
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(12);
+
+      let y = 70;
+
+      const verk = document.getElementById('verkaeufer').value.trim();
+      const kaeufer = document.getElementById('kaeufer').value.trim();
+      const artikel = document.getElementById('artikel').value.trim();
+      const preis = document.getElementById('preis').value;
+      const beschreibung = document.getElementById('beschreibung').value.trim();
+      const ort = document.getElementById('ort').value.trim();
+      const datum = document.getElementById('datum').value;
+      const datumParts = datum.split('-');
+      const datumFormatted = datumParts.length === 3 ? `${datumParts[2]}.${datumParts[1]}.${datumParts[0]}` : '';
+
+      const text = [
+        `Kaufvertrag zwischen folgendem Verkäufer und Käufer:`,
+        ``,
+        `Verkäufer: ${verk}`,
+        `Käufer: ${kaeufer}`,
+        ``,
+        `Es wurde folgender Artikel verkauft:`,
+        `${artikel}`,
+        beschreibung ? `Beschreibung: ${beschreibung}` : ``,
+        ``,
+        `Der Artikel wurde zum Preis von ${preis} € verkauft und vom Käufer`,
+        `zum oben genannten Preis vollständig bezahlt.`,
+        ``,
+        `Der Verkauf erfolgt unter Ausschluss jeglicher Garantie, Gewährleistung oder Rücknahme.`,
+        `Der Käufer bestätigt, dass er den Artikel besichtigt und in seinem aktuellen Zustand akzeptiert hat.`,
+        ``,
+        `${ort}, den ${datumFormatted}`,
+        ``,
+        `_______________________      _______________________`,
+        `Unterschrift Verkäufer          Unterschrift Käufer`
+      ];
+
+      text.forEach(line => {
+        if (line.trim() !== "") {
+          const lines = doc.splitTextToSize(line, 180);
+          lines.forEach(l => {
+            doc.text(l, 15, y);
+            y += 8;
+          });
+        } else {
+          y += 6;
+        }
+      });
+
+      doc.save("kaufvertrag.pdf");
+    }
   </script>
 </body>
 </html>
