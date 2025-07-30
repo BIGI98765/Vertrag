@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PC Kaufvertrag</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+    label, input {
+      display: block;
+      margin: 10px 0;
+    }
+    input[type="text"], input[type="date"] {
+      width: 300px;
+      padding: 5px;
+    }
+    button {
+      margin-top: 20px;
+      padding: 10px 15px;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+  <h1>PC Kaufvertrag</h1>
+
+  <form id="vertragForm">
+    <label>Verkäufer Name: <input type="text" id="verkaeufer" required></label>
+    <label>Käufer Name: <input type="text" id="kaeufer" required></label>
+    <label>Preis (€): <input type="text" id="preis" required></label>
+    <label>Datum: <input type="date" id="datum" required></label>
+    <button type="submit">Vertrag anzeigen & als PDF herunterladen</button>
+  </form>
+
+  <script>
+    document.getElementById("vertragForm").addEventListener("submit", function(event) {
+      event.preventDefault();
+
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+
+      const verkaeufer = document.getElementById("verkaeufer").value;
+      const kaeufer = document.getElementById("kaeufer").value;
+      const preis = document.getElementById("preis").value;
+      const datumInput = document.getElementById("datum").value;
+
+      const [jahr, monat, tag] = datumInput.split("-");
+      const datum = `${tag}.${monat}.${jahr}`;
+
+      let y = 20;
+      const margin = 10;
+      const maxWidth = 180;
+
+      doc.setTextColor(200, 0, 0);
+      doc.setFontSize(10);
+      doc.setFont("helvetica", "bold");
+      doc.text("Hinweis: Verkauf ohne Garantie oder Gewährleistung. Dies ist ein privater Verkauf.", margin, y, { maxWidth });
+      y += 10;
+
+      doc.setTextColor(0, 0, 0);
+      doc.setFontSize(12);
+      doc.setFont("helvetica", "normal");
+
+      doc.text("PC Kaufvertrag", margin, y);
+      y += 10;
+
+      doc.text(`Zwischen dem Verkäufer ${verkaeufer} und dem Käufer ${kaeufer} wird folgender Kaufvertrag geschlossen:`, margin, y, { maxWidth });
+      y += 10;
+
+      doc.text(`Der Verkäufer verkauft dem Käufer einen gebrauchten PC zu einem Kaufpreis von ${preis} €.`, margin, y, { maxWidth });
+      y += 10;
+
+      doc.text(`Der Käufer erklärt, dass er den PC wie gesehen übernimmt.`, margin, y, { maxWidth });
+      y += 10;
+
+      doc.text(`Der Verkauf erfolgt unter Ausschluss jeglicher Garantie und Gewährleistung.`, margin, y, { maxWidth });
+      y += 10;
+
+      y += 10;
+      doc.text(`Oldenburg, den ${datum}`, margin, y);
+      y += 20;
+
+      doc.text("_____________________________", margin, y);
+      doc.text("Unterschrift Verkäufer", margin, y + 7);
+
+      y += 20;
+
+      doc.text("_____________________________", margin, y);
+      doc.text("Unterschrift Käufer", margin, y + 7);
+
+      doc.save("PC-Kaufvertrag.pdf");
+    });
+  </script>
+</body>
+</html>
