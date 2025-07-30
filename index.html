@@ -1,54 +1,161 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Kaufvertrag Generator</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap');
+
+    /* Grundsetup */
     body {
-      font-family: Arial, sans-serif;
-      padding: 20px;
-      background: #f5f5f5;
+      background: #121212; /* dunkler Hintergrund, wie PC LED */
+      color: #e0e0e0;
+      font-family: 'Montserrat', sans-serif;
+      padding: 30px 15px;
+      display: flex;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
     }
-    h1 {
-      text-align: center;
-    }
-    input, textarea, button {
+
+    /* Container für das Formular */
+    .form-container {
+      background: #1f1f1f;
+      padding: 30px 40px;
+      border-radius: 12px;
+      box-shadow: 0 0 20px rgba(0, 200, 255, 0.4);
+      max-width: 480px;
       width: 100%;
-      margin: 10px 0;
-      padding: 8px;
-      font-size: 16px;
     }
+
+    /* Header mit Icon + Titel */
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+      position: relative;
+    }
+
+    .header img {
+      width: 60px;
+      filter: drop-shadow(0 0 5px #00eaff);
+      margin-bottom: 10px;
+    }
+
+    .header h1 {
+      font-weight: 600;
+      font-size: 1.8rem;
+      letter-spacing: 1.2px;
+      color: #00eaff;
+      margin: 0;
+    }
+
+    /* Label Styling */
     label {
-      font-weight: bold;
+      display: block;
+      font-weight: 600;
+      margin-bottom: 6px;
+      margin-top: 18px;
+      color: #00c8ff;
+      text-transform: uppercase;
+      font-size: 0.85rem;
+      letter-spacing: 0.05em;
+    }
+
+    /* Inputs und Textareas */
+    input[type="text"],
+    input[type="number"],
+    input[type="date"],
+    textarea {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 8px;
+      border: none;
+      background: #2a2a2a;
+      color: #e0e0e0;
+      font-size: 1rem;
+      resize: vertical;
+      box-shadow: inset 0 0 8px #004f6b;
+      transition: box-shadow 0.3s ease, background 0.3s ease;
+    }
+    input[type="text"]:focus,
+    input[type="number"]:focus,
+    input[type="date"]:focus,
+    textarea:focus {
+      outline: none;
+      background: #003a4e;
+      box-shadow: 0 0 10px #00eaff;
+    }
+
+    textarea {
+      min-height: 70px;
+      font-family: 'Montserrat', sans-serif;
+    }
+
+    /* Button */
+    button {
+      margin-top: 30px;
+      width: 100%;
+      background: #00eaff;
+      color: #121212;
+      font-weight: 700;
+      font-size: 1.1rem;
+      padding: 14px 0;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      box-shadow: 0 4px 12px #00eaffaa;
+      transition: background 0.3s ease, box-shadow 0.3s ease;
+    }
+    button:hover {
+      background: #00c8ff;
+      box-shadow: 0 6px 20px #00eaffee;
+    }
+
+    /* Responsive kleinere Schrift bei kleinen Displays */
+    @media (max-width: 400px) {
+      .form-container {
+        padding: 20px 25px;
+      }
+      .header h1 {
+        font-size: 1.4rem;
+      }
+      button {
+        font-size: 1rem;
+      }
     }
   </style>
 </head>
 <body>
-  <h1>Kaufvertrag erstellen</h1>
+  <div class="form-container">
+    <div class="header">
+      <img src="icon.png" alt="PC Icon" />
+      <h1>Kaufvertrag erstellen</h1>
+    </div>
 
-  <label>Verkäufer (Name + Anschrift):</label>
-  <textarea id="verkaeufer"></textarea>
+    <label for="verkaeufer">Verkäufer (Name + Anschrift):</label>
+    <textarea id="verkaeufer"></textarea>
 
-  <label>Käufer (Name + Anschrift):</label>
-  <textarea id="kaeufer"></textarea>
+    <label for="kaeufer">Käufer (Name + Anschrift):</label>
+    <textarea id="kaeufer"></textarea>
 
-  <label>Artikelname:</label>
-  <input id="artikel" />
+    <label for="artikel">Artikelname:</label>
+    <input id="artikel" type="text" />
 
-  <label>Preis in €:</label>
-  <input id="preis" type="number" />
+    <label for="preis">Preis in €:</label>
+    <input id="preis" type="number" min="0" step="0.01" />
 
-  <label>Beschreibung (optional):</label>
-  <textarea id="beschreibung"></textarea>
+    <label for="beschreibung">Beschreibung (optional):</label>
+    <textarea id="beschreibung"></textarea>
 
-  <label>Ort:</label>
-  <input id="ort" />
+    <label for="ort">Ort:</label>
+    <input id="ort" type="text" />
 
-  <label>Datum:</label>
-  <input id="datum" type="date" />
+    <label for="datum">Datum:</label>
+    <input id="datum" type="date" />
 
-  <button onclick="generatePDF()">PDF erstellen</button>
+    <button onclick="generatePDF()">PDF erstellen</button>
+  </div>
 
   <script>
     async function generatePDF() {
@@ -56,7 +163,7 @@
       const doc = new jsPDF();
 
       const icon = new Image();
-      icon.src = 'icon.png'; // Stelle sicher, dass icon.png im gleichen Ordner liegt
+      icon.src = 'icon.png';
       await new Promise(resolve => {
         icon.onload = resolve;
         icon.onerror = resolve;
@@ -71,12 +178,12 @@
 
       let y = 70;
 
-      const verk = document.getElementById('verkaeufer').value;
-      const kaeufer = document.getElementById('kaeufer').value;
-      const artikel = document.getElementById('artikel').value;
+      const verk = document.getElementById('verkaeufer').value.trim();
+      const kaeufer = document.getElementById('kaeufer').value.trim();
+      const artikel = document.getElementById('artikel').value.trim();
       const preis = document.getElementById('preis').value;
       const beschreibung = document.getElementById('beschreibung').value.trim();
-      const ort = document.getElementById('ort').value;
+      const ort = document.getElementById('ort').value.trim();
       const datum = document.getElementById('datum').value;
       const datumParts = datum.split('-');
       const datumFormatted = datumParts.length === 3 ? `${datumParts[2]}.${datumParts[1]}.${datumParts[0]}` : '';
