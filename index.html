@@ -3,109 +3,122 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PC Kaufvertrag</title>
-  <link rel="manifest" href="manifest.json" />
-  <link rel="icon" href="icon.png" type="image/png" />
+  <title>Kaufvertrag – PC</title>
+  <link rel="icon" href="icon.png" type="image/png">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
     body {
       font-family: Arial, sans-serif;
-      max-width: 600px;
-      margin: 30px auto;
+      background: #f3f3f3;
       padding: 20px;
+      max-width: 600px;
+      margin: auto;
     }
-    h2 {
+
+    h1 {
       text-align: center;
+      margin-bottom: 30px;
     }
+
     label {
-      margin-top: 10px;
       display: block;
+      margin-top: 15px;
+      font-weight: bold;
     }
+
     input {
       width: 100%;
-      padding: 8px;
-      margin-top: 4px;
-      margin-bottom: 12px;
+      padding: 10px;
+      margin-top: 5px;
+      box-sizing: border-box;
+      border-radius: 5px;
+      border: 1px solid #ccc;
     }
+
     button {
+      margin-top: 30px;
+      padding: 15px;
       width: 100%;
-      padding: 12px;
       font-size: 16px;
-      background-color: #0a7dda;
+      background-color: #007bff;
       color: white;
       border: none;
+      border-radius: 8px;
       cursor: pointer;
     }
+
     button:hover {
-      background-color: #066bb3;
+      background-color: #0056b3;
+    }
+
+    .footer {
+      text-align: center;
+      margin-top: 40px;
+      font-size: 0.9em;
+      color: #999;
     }
   </style>
 </head>
 <body>
-  <h2>PC Kaufvertrag (Privatverkauf)</h2>
+  <h1>Kaufvertrag erstellen</h1>
 
-  <form id="vertragForm">
-    <label>Käufer Name*:</label>
-    <input type="text" id="kaeufer" required>
+  <label for="name">Name des Käufers:</label>
+  <input type="text" id="name" placeholder="Max Mustermann" />
 
-    <label>Verkäufer Name*:</label>
-    <input type="text" id="verkaeufer" required>
+  <label for="preis">Preis (€):</label>
+  <input type="number" id="preis" placeholder="z.B. 300" />
 
-    <label>Kaufpreis (€)*:</label>
-    <input type="number" id="preis" required>
+  <label for="ort">Ort:</label>
+  <input type="text" id="ort" value="Oldenburg" />
 
-    <label>Ort*:</label>
-    <input type="text" id="ort" required>
+  <label for="datum">Datum:</label>
+  <input type="date" id="datum" />
 
-    <label>Datum*:</label>
-    <input type="date" id="datum" required>
+  <button onclick="exportPDF()">PDF erstellen</button>
 
-    <button type="submit">Vertrag anzeigen & als PDF speichern</button>
-  </form>
+  <div class="footer">
+    &copy; 2025 Nico Haß – Kaufvertrag Generator
+  </div>
 
   <script>
-    document.getElementById("vertragForm").addEventListener("submit", async function(e) {
-      e.preventDefault();
+    async function exportPDF() {
       const { jsPDF } = window.jspdf;
-      const pdf = new jsPDF();
-
-      const kaeufer = document.getElementById("kaeufer").value;
-      const verkaeufer = document.getElementById("verkaeufer").value;
+      const name = document.getElementById("name").value;
       const preis = document.getElementById("preis").value;
       const ort = document.getElementById("ort").value;
       const datum = document.getElementById("datum").value;
 
-      // Bild laden
-      const img = new Image();
-      img.src = "icon.png";
+      if (!name || !preis || !ort || !datum) {
+        alert("Bitte alle Felder ausfüllen.");
+        return;
+      }
 
-      img.onload = function() {
-        pdf.setFontSize(12);
-        pdf.addImage(img, "PNG", 85, 10, 40, 40); // Icon mittig oben
+      const doc = new jsPDF();
 
-        pdf.text("PC KAUFVERTRAG (PRIVATVERKAUF)", 20, 60);
-        pdf.text(`Verkäufer: ${verkaeufer}`, 20, 75);
-        pdf.text(`Käufer: ${kaeufer}`, 20, 85);
-        pdf.text(`Kaufpreis: ${preis} €`, 20, 95);
-        pdf.text(`Ort, Datum: ${ort}, den ${datum}`, 20, 105);
+      const [jahr, monat, tag] = datum.split("-");
+      const formatiertesDatum = `${tag}.${monat}.${jahr}`;
 
-        const disclaimer = `
-Der Verkauf erfolgt unter Ausschluss jeglicher Garantie, 
-Gewährleistung oder Rücknahme. Der Käufer bestätigt,
-das Gerät im gebrauchten Zustand wie gesehen zu kaufen.`;
+      doc.setFont("Times", "Normal");
+      doc.setFontSize(18);
+      doc.setFont("Times", "Bold");
+      doc.text("Kaufvertrag für einen PC", 105, 20, null, null, "center");
 
-        const disclaimerLines = pdf.splitTextToSize(disclaimer, 170);
-        pdf.text(disclaimerLines, 20, 120);
+      doc.setFontSize(14);
+      doc.setFont("Times", "Normal");
 
-        pdf.text("__________________________", 20, 170);
-        pdf.text("Verkäufer (Unterschrift)", 20, 177);
+      doc.text(`Verkäufer (Name): Nico Haß`, 20, 40);
+      doc.text(`Käufer (Name): ${name}`, 20, 50);
+      doc.text(`Verkauft wird ein gebrauchter PC zum Preis von ${preis} Euro.`, 20, 65);
+      doc.text(`Der Artikel wird ohne Garantie oder Rücknahme verkauft.`, 20, 75);
+      doc.text(`${ort}, den ${formatiertesDatum}`, 20, 95);
 
-        pdf.text("__________________________", 120, 170);
-        pdf.text("Käufer (Unterschrift)", 120, 177);
+      doc.text("________________________", 20, 115);
+      doc.text("Unterschrift Verkäufer", 20, 122);
+      doc.text("________________________", 120, 115);
+      doc.text("Unterschrift Käufer", 120, 122);
 
-        pdf.save("Kaufvertrag.pdf");
-      };
-    });
+      doc.save("Kaufvertrag.pdf");
+    }
   </script>
 </body>
 </html>
