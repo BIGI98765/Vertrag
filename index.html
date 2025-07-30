@@ -3,121 +3,87 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Kaufvertrag – PC</title>
-  <link rel="icon" href="icon.png" type="image/png">
+  <title>Kaufvertrag</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background: #f3f3f3;
+      font-family: 'Arial', sans-serif;
       padding: 20px;
-      max-width: 600px;
+    }
+    label, input, button {
+      display: block;
+      margin-top: 10px;
+    }
+    .container {
+      max-width: 500px;
       margin: auto;
     }
-
-    h1 {
-      text-align: center;
-      margin-bottom: 30px;
-    }
-
-    label {
-      display: block;
-      margin-top: 15px;
-      font-weight: bold;
-    }
-
-    input {
-      width: 100%;
-      padding: 10px;
-      margin-top: 5px;
-      box-sizing: border-box;
-      border-radius: 5px;
-      border: 1px solid #ccc;
-    }
-
     button {
-      margin-top: 30px;
-      padding: 15px;
-      width: 100%;
-      font-size: 16px;
-      background-color: #007bff;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-    }
-
-    button:hover {
-      background-color: #0056b3;
-    }
-
-    .footer {
-      text-align: center;
-      margin-top: 40px;
-      font-size: 0.9em;
-      color: #999;
+      margin-top: 20px;
+      padding: 10px;
     }
   </style>
 </head>
 <body>
-  <h1>Kaufvertrag erstellen</h1>
+  <div class="container">
+    <h2>Kaufvertrag erstellen</h2>
 
-  <label for="name">Name des Käufers:</label>
-  <input type="text" id="name" placeholder="Max Mustermann" />
+    <label>Käufer (Name): <input id="kaeufer" type="text" /></label>
+    <label>Verkäufer (Name): <input id="verkaeufer" type="text" /></label>
+    <label>Produkt: <input id="produkt" type="text" /></label>
+    <label>Preis (€): <input id="preis" type="number" /></label>
+    <label>Ort: <input id="ort" type="text" value="Oldenburg" /></label>
+    <label>Datum: <input id="datum" type="date" /></label>
 
-  <label for="preis">Preis (€):</label>
-  <input type="number" id="preis" placeholder="z.B. 300" />
-
-  <label for="ort">Ort:</label>
-  <input type="text" id="ort" value="Oldenburg" />
-
-  <label for="datum">Datum:</label>
-  <input type="date" id="datum" />
-
-  <button onclick="exportPDF()">PDF erstellen</button>
-
-  <div class="footer">
-    &copy; 2025 Nico Haß – Kaufvertrag Generator
+    <button onclick="erzeugePDF()">PDF erstellen</button>
   </div>
 
   <script>
-    async function exportPDF() {
+    async function erzeugePDF() {
       const { jsPDF } = window.jspdf;
-      const name = document.getElementById("name").value;
-      const preis = document.getElementById("preis").value;
-      const ort = document.getElementById("ort").value;
-      const datum = document.getElementById("datum").value;
-
-      if (!name || !preis || !ort || !datum) {
-        alert("Bitte alle Felder ausfüllen.");
-        return;
-      }
-
       const doc = new jsPDF();
 
-      const [jahr, monat, tag] = datum.split("-");
-      const formatiertesDatum = `${tag}.${monat}.${jahr}`;
+      const kaeufer = document.getElementById('kaeufer').value;
+      const verkaeufer = document.getElementById('verkaeufer').value;
+      const produkt = document.getElementById('produkt').value;
+      const preis = document.getElementById('preis').value;
+      const ort = document.getElementById('ort').value;
+      const datumRaw = document.getElementById('datum').value;
 
-      doc.setFont("Times", "Normal");
-      doc.setFontSize(18);
-      doc.setFont("Times", "Bold");
-      doc.text("Kaufvertrag für einen PC", 105, 20, null, null, "center");
+      const datum = datumRaw.split("-").reverse().join(".");
 
-      doc.setFontSize(14);
-      doc.setFont("Times", "Normal");
+      // Logo laden (icon.png muss im gleichen Ordner liegen)
+      const img = new Image();
+      img.src = "icon.png";
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        canvas.width = img.width;
+        canvas.height = img.height;
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0);
+        const dataURL = canvas.toDataURL("image/png");
 
-      doc.text(`Verkäufer (Name): Nico Haß`, 20, 40);
-      doc.text(`Käufer (Name): ${name}`, 20, 50);
-      doc.text(`Verkauft wird ein gebrauchter PC zum Preis von ${preis} Euro.`, 20, 65);
-      doc.text(`Der Artikel wird ohne Garantie oder Rücknahme verkauft.`, 20, 75);
-      doc.text(`${ort}, den ${formatiertesDatum}`, 20, 95);
+        doc.addImage(dataURL, "PNG", 80, 10, 50, 50); // Logo mittig oben
 
-      doc.text("________________________", 20, 115);
-      doc.text("Unterschrift Verkäufer", 20, 122);
-      doc.text("________________________", 120, 115);
-      doc.text("Unterschrift Käufer", 120, 122);
+        doc.setFontSize(12);
+        doc.text(`Kaufvertrag`, 105, 70, { align: "center" });
 
-      doc.save("Kaufvertrag.pdf");
+        doc.setFontSize(10);
+        doc.text(`Zwischen ${verkaeufer} (Verkäufer)`, 20, 90);
+        doc.text(`und ${kaeufer} (Käufer)`, 20, 100);
+        doc.text(`wird folgendes vereinbart:`, 20, 110);
+        doc.text(`- Der Käufer erwirbt: ${produkt}`, 20, 120);
+        doc.text(`- Kaufpreis: ${preis} Euro`, 20, 130);
+        doc.text(`- Der Kauf erfolgt wie gesehen, ohne Garantie oder Rücknahme.`, 20, 140);
+        doc.text(`${ort}, den ${datum}`, 20, 160);
+
+        doc.text("_____________________", 20, 180);
+        doc.text("Unterschrift Verkäufer", 20, 185);
+        doc.text("_____________________", 120, 180);
+        doc.text("Unterschrift Käufer", 120, 185);
+
+        doc.save("Kaufvertrag.pdf");
+      };
     }
   </script>
 </body>
