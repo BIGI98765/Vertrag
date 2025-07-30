@@ -11,7 +11,7 @@
       max-width: 800px;
       margin: auto;
       padding: 20px;
-      background: #f4f4f4;
+      background: #f9f9f9;
     }
     input, button {
       padding: 8px;
@@ -38,7 +38,7 @@
   <label>Vor- und Nachname (Käufer):</label>
   <input id="kaeufer" type="text"/>
 
-  <label>Beschreibung des PCs:</label>
+  <label>Beschreibung des PCs (optional):</label>
   <input id="beschreibung" type="text" placeholder="z. B. Gaming-PC mit RTX 4060, 16GB RAM"/>
 
   <label>Verkaufspreis (€):</label>
@@ -58,43 +58,60 @@
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF();
 
-      const verkaeufer = document.getElementById("verkaeufer").value;
-      const kaeufer = document.getElementById("kaeufer").value;
-      const beschreibung = document.getElementById("beschreibung").value;
-      const preis = document.getElementById("preis").value;
-      const ort = document.getElementById("ort").value;
-      const datum = new Date(document.getElementById("datum").value);
-      const datumFormat = datum.toLocaleDateString("de-DE");
+      const verkaeufer = document.getElementById("verkaeufer").value.trim();
+      const kaeufer = document.getElementById("kaeufer").value.trim();
+      const beschreibung = document.getElementById("beschreibung").value.trim();
+      const preis = document.getElementById("preis").value.trim();
+      const ort = document.getElementById("ort").value.trim();
+      const datumInput = document.getElementById("datum").value;
 
-      // Bild laden
-      const img = new Image();
-      img.src = "icon.png";
+      const datum = datumInput ? new Date(datumInput).toLocaleDateString("de-DE") : "________";
 
-      img.onload = function () {
-        doc.addImage(img, "PNG", 80, 10, 50, 50); // Logo oben
+      const logo = new Image();
+      logo.src = "icon.png";
+
+      logo.onload = function () {
+        doc.addImage(logo, "PNG", 80, 10, 50, 50); // Logo oben
         let y = 70;
 
         doc.setFont("helvetica", "bold");
         doc.setFontSize(16);
-        doc.text("Kaufvertrag für gebrauchten PC", 105, y, { align: "center" });
-        y += 20;
+        doc.text("Kaufvertrag", 105, y, { align: "center" });
+        y += 15;
 
-        doc.setFontSize(12);
         doc.setFont("helvetica", "normal");
+        doc.setFontSize(12);
 
-        doc.text(`Verkäufer: ${verkaeufer}`, 20, y);
-        y += 10;
-        doc.text(`Käufer: ${kaeufer}`, 20, y);
-        y += 10;
-        doc.text(`Artikel: ${beschreibung}`, 20, y);
-        y += 10;
-        doc.text(`Preis: ${preis} €`, 20, y);
-        y += 10;
-        doc.text(`${ort}, den ${datumFormat}`, 20, y);
+        doc.text(`Zwischen ${verkaeufer} (nachfolgend "Verkäufer") und ${kaeufer} (nachfolgend "Käufer")`, 20, y);
+        y += 8;
+        doc.text(`wird folgender Kaufvertrag über einen gebrauchten PC geschlossen:`, 20, y);
+        y += 12;
+
+        let artikelText = `Der Verkäufer verkauft dem Käufer einen gebrauchten PC`;
+
+        if (beschreibung !== "") {
+          artikelText += ` mit folgender Beschreibung: ${beschreibung}.`;
+        } else {
+          artikelText += `.`;
+        }
+
+        const preisText = `Der vereinbarte Kaufpreis beträgt ${preis} Euro.`;
+
+        doc.text(doc.splitTextToSize(artikelText, 170), 20, y);
+        y += artikelText.length > 90 ? 16 : 10;
+
+        doc.text(preisText, 20, y);
+        y += 15;
+
+        const haftung = `Der Verkauf erfolgt unter Ausschluss jeglicher Gewährleistung. Der Verkäufer übernimmt keine Garantie für Funktion, Zustand oder etwaige Mängel des Geräts. Der Käufer hat die Möglichkeit gehabt, das Gerät vor dem Kauf zu prüfen und akzeptiert den Artikel im aktuellen Zustand.`;
+
+        doc.text(doc.splitTextToSize(haftung, 170), 20, y);
+        y += 30;
+
+        doc.text(`Ort: ${ort}`, 20, y);
+        doc.text(`Datum: ${datum}`, 120, y);
         y += 20;
 
-        doc.text("Der Verkauf erfolgt unter Ausschluss jeglicher Garantie oder Gewährleistung.", 20, y);
-        y += 20;
         doc.text("__________________________", 20, y);
         doc.text("Unterschrift Verkäufer", 20, y + 10);
 
