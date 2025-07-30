@@ -3,35 +3,79 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Kaufvertrag</title>
-
-  <!-- Favicon & App Icon -->
-  <link rel="icon" href="icon.png" type="image/png" />
-  <link rel="apple-touch-icon" href="icon.png" />
-  
-  <!-- PWA Manifest -->
+  <title>PC Kaufvertrag</title>
   <link rel="manifest" href="manifest.json" />
-  
-  <meta name="theme-color" content="#0078d7" />
-
+  <link rel="icon" href="icon.png" type="image/png" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
-    body { font-family: sans-serif; padding: 20px; background: #f9f9f9; }
-    h1 { text-align: center; color: #0078d7; }
-    .vertrag { max-width: 600px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1);}
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 600px;
+      margin: auto;
+      padding: 20px;
+    }
+    label {
+      display: block;
+      margin-top: 10px;
+    }
+    input {
+      width: 100%;
+      padding: 6px;
+    }
+    button {
+      margin-top: 20px;
+      padding: 10px;
+      width: 100%;
+      font-size: 16px;
+    }
   </style>
 </head>
 <body>
-  <div class="vertrag">
-    <h1>Kaufvertrag</h1>
-    <p><strong>Verkäufer:</strong> Max Mustermann</p>
-    <p><strong>Käufer:</strong> _______________________</p>
-    <p><strong>Kaufpreis:</strong> 300,00 €</p>
-    <p><strong>Garantie:</strong> Keine – Privatverkauf, daher keine Rücknahme oder Garantie.</p>
-    <p><strong>Ort, Datum:</strong> Oldenburg, 30.08.2025</p>
-    <br /><br />
-    <p>_________________________<br />Unterschrift Verkäufer</p>
-    <br /><br />
-    <p>_________________________<br />Unterschrift Käufer</p>
-  </div>
+  <h2>PC Kaufvertrag (Privatverkauf)</h2>
+
+  <form id="vertragForm">
+    <label>Käufer Name*: <input type="text" id="kaeufer" required></label>
+    <label>Verkäufer Name*: <input type="text" id="verkaeufer" required></label>
+    <label>Kaufpreis (€)*: <input type="number" id="preis" required></label>
+    <label>Datum (z. B. 30.08.2025)*: <input type="text" id="datum" required></label>
+    <label>Ort*: <input type="text" id="ort" required></label>
+
+    <button type="submit">Vertrag anzeigen & als PDF speichern</button>
+  </form>
+
+  <script>
+    document.getElementById("vertragForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+      const { jsPDF } = window.jspdf;
+      const pdf = new jsPDF();
+
+      const kaeufer = document.getElementById("kaeufer").value;
+      const verkaeufer = document.getElementById("verkaeufer").value;
+      const preis = document.getElementById("preis").value;
+      const datum = document.getElementById("datum").value;
+      const ort = document.getElementById("ort").value;
+
+      let text = `
+PC KAUFVERTRAG (PRIVATVERKAUF)
+
+Verkäufer: ${verkaeufer}
+Käufer: ${kaeufer}
+
+Der Verkäufer verkauft dem Käufer einen gebrauchten PC zum Preis von ${preis} €.
+Der Kauf erfolgt unter Ausschluss jeglicher Gewährleistung, Garantie oder Rücknahme.
+Der Käufer bestätigt, das Gerät wie gesehen gekauft zu haben.
+
+Ort, Datum: ${ort}, den ${datum}
+
+
+__________________________        __________________________
+Verkäufer (Unterschrift)               Käufer (Unterschrift)
+      `;
+
+      pdf.setFontSize(12);
+      pdf.text(text, 10, 20);
+      pdf.save("Kaufvertrag.pdf");
+    });
+  </script>
 </body>
 </html>
