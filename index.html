@@ -1,99 +1,37 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PC Kaufvertrag</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kaufvertrag</title>
+
+  <!-- Favicon & App Icon -->
+  <link rel="icon" href="icon.png" type="image/png" />
+  <link rel="apple-touch-icon" href="icon.png" />
+  
+  <!-- PWA Manifest -->
+  <link rel="manifest" href="manifest.json" />
+  
+  <meta name="theme-color" content="#0078d7" />
+
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 20px;
-    }
-    label, input {
-      display: block;
-      margin: 10px 0;
-    }
-    input[type="text"], input[type="date"] {
-      width: 300px;
-      padding: 5px;
-    }
-    button {
-      margin-top: 20px;
-      padding: 10px 15px;
-      font-size: 16px;
-    }
+    body { font-family: sans-serif; padding: 20px; background: #f9f9f9; }
+    h1 { text-align: center; color: #0078d7; }
+    .vertrag { max-width: 600px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1);}
   </style>
 </head>
 <body>
-  <h1>PC Kaufvertrag</h1>
-
-  <form id="vertragForm">
-    <label>Verkäufer Name: <input type="text" id="verkaeufer" required></label>
-    <label>Käufer Name: <input type="text" id="kaeufer" required></label>
-    <label>Preis (€): <input type="text" id="preis" required></label>
-    <label>Datum: <input type="date" id="datum" required></label>
-    <button type="submit">Vertrag anzeigen & als PDF herunterladen</button>
-  </form>
-
-  <script>
-    document.getElementById("vertragForm").addEventListener("submit", function(event) {
-      event.preventDefault();
-
-      const { jsPDF } = window.jspdf;
-      const doc = new jsPDF();
-
-      const verkaeufer = document.getElementById("verkaeufer").value;
-      const kaeufer = document.getElementById("kaeufer").value;
-      const preis = document.getElementById("preis").value;
-      const datumInput = document.getElementById("datum").value;
-
-      const [jahr, monat, tag] = datumInput.split("-");
-      const datum = `${tag}.${monat}.${jahr}`;
-
-      let y = 20;
-      const margin = 10;
-      const maxWidth = 180;
-
-      doc.setTextColor(200, 0, 0);
-      doc.setFontSize(10);
-      doc.setFont("helvetica", "bold");
-      doc.text("Hinweis: Verkauf ohne Garantie oder Gewährleistung. Dies ist ein privater Verkauf.", margin, y, { maxWidth });
-      y += 10;
-
-      doc.setTextColor(0, 0, 0);
-      doc.setFontSize(12);
-      doc.setFont("helvetica", "normal");
-
-      doc.text("PC Kaufvertrag", margin, y);
-      y += 10;
-
-      doc.text(`Zwischen dem Verkäufer ${verkaeufer} und dem Käufer ${kaeufer} wird folgender Kaufvertrag geschlossen:`, margin, y, { maxWidth });
-      y += 10;
-
-      doc.text(`Der Verkäufer verkauft dem Käufer einen gebrauchten PC zu einem Kaufpreis von ${preis} €.`, margin, y, { maxWidth });
-      y += 10;
-
-      doc.text(`Der Käufer erklärt, dass er den PC wie gesehen übernimmt.`, margin, y, { maxWidth });
-      y += 10;
-
-      doc.text(`Der Verkauf erfolgt unter Ausschluss jeglicher Garantie und Gewährleistung.`, margin, y, { maxWidth });
-      y += 10;
-
-      y += 10;
-      doc.text(`Oldenburg, den ${datum}`, margin, y);
-      y += 20;
-
-      doc.text("_____________________________", margin, y);
-      doc.text("Unterschrift Verkäufer", margin, y + 7);
-
-      y += 20;
-
-      doc.text("_____________________________", margin, y);
-      doc.text("Unterschrift Käufer", margin, y + 7);
-
-      doc.save("PC-Kaufvertrag.pdf");
-    });
-  </script>
+  <div class="vertrag">
+    <h1>Kaufvertrag</h1>
+    <p><strong>Verkäufer:</strong> Max Mustermann</p>
+    <p><strong>Käufer:</strong> _______________________</p>
+    <p><strong>Kaufpreis:</strong> 300,00 €</p>
+    <p><strong>Garantie:</strong> Keine – Privatverkauf, daher keine Rücknahme oder Garantie.</p>
+    <p><strong>Ort, Datum:</strong> Oldenburg, 30.08.2025</p>
+    <br /><br />
+    <p>_________________________<br />Unterschrift Verkäufer</p>
+    <br /><br />
+    <p>_________________________<br />Unterschrift Käufer</p>
+  </div>
 </body>
 </html>
