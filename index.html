@@ -57,14 +57,14 @@
     <label>Ort*:</label>
     <input type="text" id="ort" required>
 
-    <label>Datum (z. B. 30.08.2025)*:</label>
-    <input type="text" id="datum" required>
+    <label>Datum*:</label>
+    <input type="date" id="datum" required>
 
     <button type="submit">Vertrag anzeigen & als PDF speichern</button>
   </form>
 
   <script>
-    document.getElementById("vertragForm").addEventListener("submit", function(e) {
+    document.getElementById("vertragForm").addEventListener("submit", async function(e) {
       e.preventDefault();
       const { jsPDF } = window.jspdf;
       const pdf = new jsPDF();
@@ -75,26 +75,36 @@
       const ort = document.getElementById("ort").value;
       const datum = document.getElementById("datum").value;
 
-      const text = `
-PC KAUFVERTRAG (PRIVATVERKAUF)
+      // Bild laden
+      const img = new Image();
+      img.src = "icon.png";
 
-Verkäufer: ${verkaeufer}
-Käufer: ${kaeufer}
+      img.onload = function() {
+        pdf.setFontSize(12);
+        pdf.addImage(img, "PNG", 85, 10, 40, 40); // Icon mittig oben
 
-Der Verkäufer verkauft dem Käufer einen gebrauchten PC zum Preis von ${preis} €.
-Der Verkauf erfolgt unter Ausschluss jeglicher Garantie, Rücknahme oder Gewährleistung.
-Der Käufer bestätigt, das Gerät wie gesehen gekauft zu haben.
+        pdf.text("PC KAUFVERTRAG (PRIVATVERKAUF)", 20, 60);
+        pdf.text(`Verkäufer: ${verkaeufer}`, 20, 75);
+        pdf.text(`Käufer: ${kaeufer}`, 20, 85);
+        pdf.text(`Kaufpreis: ${preis} €`, 20, 95);
+        pdf.text(`Ort, Datum: ${ort}, den ${datum}`, 20, 105);
 
-Ort, Datum: ${ort}, den ${datum}
+        const disclaimer = `
+Der Verkauf erfolgt unter Ausschluss jeglicher Garantie, 
+Gewährleistung oder Rücknahme. Der Käufer bestätigt,
+das Gerät im gebrauchten Zustand wie gesehen zu kaufen.`;
 
+        const disclaimerLines = pdf.splitTextToSize(disclaimer, 170);
+        pdf.text(disclaimerLines, 20, 120);
 
-__________________________        __________________________
-Verkäufer (Unterschrift)          Käufer (Unterschrift)
-      `;
+        pdf.text("__________________________", 20, 170);
+        pdf.text("Verkäufer (Unterschrift)", 20, 177);
 
-      pdf.setFontSize(12);
-      pdf.text(text, 10, 20);
-      pdf.save("Kaufvertrag.pdf");
+        pdf.text("__________________________", 120, 170);
+        pdf.text("Käufer (Unterschrift)", 120, 177);
+
+        pdf.save("Kaufvertrag.pdf");
+      };
     });
   </script>
 </body>
