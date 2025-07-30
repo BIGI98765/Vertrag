@@ -11,22 +11,33 @@
     body {
       font-family: Arial, sans-serif;
       max-width: 600px;
-      margin: auto;
+      margin: 30px auto;
       padding: 20px;
     }
+    h2 {
+      text-align: center;
+    }
     label {
-      display: block;
       margin-top: 10px;
+      display: block;
     }
     input {
       width: 100%;
-      padding: 6px;
+      padding: 8px;
+      margin-top: 4px;
+      margin-bottom: 12px;
     }
     button {
-      margin-top: 20px;
-      padding: 10px;
       width: 100%;
+      padding: 12px;
       font-size: 16px;
+      background-color: #0a7dda;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #066bb3;
     }
   </style>
 </head>
@@ -34,11 +45,20 @@
   <h2>PC Kaufvertrag (Privatverkauf)</h2>
 
   <form id="vertragForm">
-    <label>Käufer Name*: <input type="text" id="kaeufer" required></label>
-    <label>Verkäufer Name*: <input type="text" id="verkaeufer" required></label>
-    <label>Kaufpreis (€)*: <input type="number" id="preis" required></label>
-    <label>Datum (z. B. 30.08.2025)*: <input type="text" id="datum" required></label>
-    <label>Ort*: <input type="text" id="ort" required></label>
+    <label>Käufer Name*:</label>
+    <input type="text" id="kaeufer" required>
+
+    <label>Verkäufer Name*:</label>
+    <input type="text" id="verkaeufer" required>
+
+    <label>Kaufpreis (€)*:</label>
+    <input type="number" id="preis" required>
+
+    <label>Ort*:</label>
+    <input type="text" id="ort" required>
+
+    <label>Datum (z. B. 30.08.2025)*:</label>
+    <input type="text" id="datum" required>
 
     <button type="submit">Vertrag anzeigen & als PDF speichern</button>
   </form>
@@ -52,24 +72,24 @@
       const kaeufer = document.getElementById("kaeufer").value;
       const verkaeufer = document.getElementById("verkaeufer").value;
       const preis = document.getElementById("preis").value;
-      const datum = document.getElementById("datum").value;
       const ort = document.getElementById("ort").value;
+      const datum = document.getElementById("datum").value;
 
-      let text = `
+      const text = `
 PC KAUFVERTRAG (PRIVATVERKAUF)
 
 Verkäufer: ${verkaeufer}
 Käufer: ${kaeufer}
 
 Der Verkäufer verkauft dem Käufer einen gebrauchten PC zum Preis von ${preis} €.
-Der Kauf erfolgt unter Ausschluss jeglicher Gewährleistung, Garantie oder Rücknahme.
+Der Verkauf erfolgt unter Ausschluss jeglicher Garantie, Rücknahme oder Gewährleistung.
 Der Käufer bestätigt, das Gerät wie gesehen gekauft zu haben.
 
 Ort, Datum: ${ort}, den ${datum}
 
 
 __________________________        __________________________
-Verkäufer (Unterschrift)               Käufer (Unterschrift)
+Verkäufer (Unterschrift)          Käufer (Unterschrift)
       `;
 
       pdf.setFontSize(12);
