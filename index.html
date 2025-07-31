@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="de">
 <head>
   <meta charset="UTF-8" />
@@ -281,30 +281,18 @@
         }
       });
 
-      // PDF als data-URL erzeugen
-      const pdfDataUri = doc.output('datauristring');
+      const pdfBlob = doc.output('bloburl');
+      const printWindow = window.open(pdfBlob);
 
-      // Unsichtbaren iframe erstellen
-      let iframe = document.getElementById('print-iframe');
-      if (!iframe) {
-        iframe = document.createElement('iframe');
-        iframe.style.position = 'fixed';
-        iframe.style.right = '0';
-        iframe.style.bottom = '0';
-        iframe.style.width = '0';
-        iframe.style.height = '0';
-        iframe.style.border = '0';
-        iframe.id = 'print-iframe';
-        document.body.appendChild(iframe);
+      if (!printWindow) {
+        alert("Pop-up Blocker aktiviert? Bitte erlaube Pop-ups für diese Seite.");
+        return;
       }
 
-      iframe.src = pdfDataUri;
+      printWindow.focus();
 
-      iframe.onload = () => {
-        setTimeout(() => {
-          iframe.contentWindow.focus();
-          iframe.contentWindow.print();
-        }, 250);
+      printWindow.onload = () => {
+        printWindow.print();
       };
     }
   </script>
